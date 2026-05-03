@@ -36,36 +36,8 @@
 
 ---
 
-## 🚀 Cara Menjalankan
-
-### Lokal
-```bash
-# Cukup buka file-nya langsung di browser
-open index.html
-```
-
-### Deploy ke GitHub Pages
-```bash
-# 1. Clone / fork repo ini
-git clone https://github.com/username/aether-weather.git
-
-# 2. Push ke GitHub
-git add .
-git commit -m "Initial commit"
-git push origin main
-
-# 3. Aktifkan GitHub Pages
-# Settings → Pages → Source: Deploy from branch → main → / (root)
-```
-
-Situsmu akan live di:
-```
-https://username.github.io/aether-weather
-```
-
-### Deploy ke Netlify (paling cepat)
-Drag & drop file `index.html` ke [app.netlify.com/drop](https://app.netlify.com/drop) — langsung dapat link dalam 10 detik.
-
+### Deploy ke Vercel
+Sambungkan GitHub repo ke Vercel, deploy and done
 ---
 
 ## 🗂️ Struktur Scrollytelling
