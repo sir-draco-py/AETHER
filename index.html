@@ -172,7 +172,6 @@
   }
   .card-3d-inner {
     border-radius:inherit;
-    transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
     transform-style:preserve-3d;
     will-change:transform;
   }
@@ -888,29 +887,59 @@ function drawBg(){
 drawBg();
 
 /* ========================
-   3D TILT — inner wrapper only (backdrop-filter stays on outer)
+   3D TILT — smooth spring-like for all cards
 ======================== */
 document.querySelectorAll('.card-3d-outer').forEach(outer=>{
   const inner = outer.querySelector('.card-3d-inner');
   const shine = outer.querySelector('.card-3d-shine');
   if(!inner) return;
+
+  let rafId = null;
+  let currentRx = 0, currentRy = 0;
+  let targetRx  = 0, targetRy  = 0;
+  const EASE = 0.08; // lower = smoother/slower follow
+
+  function lerp(a, b, t){ return a + (b - a) * t; }
+
+  function tick(){
+    currentRx = lerp(currentRx, targetRx, EASE);
+    currentRy = lerp(currentRy, targetRy, EASE);
+
+    const dist = Math.abs(currentRx - targetRx) + Math.abs(currentRy - targetRy);
+    inner.style.transform =
+      `perspective(1200px) rotateX(${currentRx}deg) rotateY(${currentRy}deg) translateZ(4px)`;
+
+    if(dist > 0.01) rafId = requestAnimationFrame(tick);
+    else {
+      inner.style.transform =
+        `perspective(1200px) rotateX(${targetRx}deg) rotateY(${targetRy}deg) translateZ(${targetRx===0&&targetRy===0?0:4}px)`;
+      rafId = null;
+    }
+  }
+
   outer.addEventListener('mousemove', e=>{
     const r = outer.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width  - 0.5;  // -0.5 → 0.5
+    const x = (e.clientX - r.left) / r.width  - 0.5;
     const y = (e.clientY - r.top)  / r.height - 0.5;
-    const rx = -y * 14;   // tilt up/down
-    const ry =  x * 14;   // tilt left/right
-    inner.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(8px)`;
+    targetRx = -y * 10;
+    targetRy =  x * 10;
+
     if(shine){
-      // move shine to follow cursor
-      const px = (x+0.5)*100, py = (y+0.5)*100;
-      shine.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.09), transparent 55%)`;
+      const px = (x + 0.5) * 100;
+      const py = (y + 0.5) * 100;
+      shine.style.background =
+        `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.09), transparent 55%)`;
       shine.style.opacity = '1';
     }
+
+    if(!rafId) rafId = requestAnimationFrame(tick);
   });
+
   outer.addEventListener('mouseleave', ()=>{
-    inner.style.transform = 'perspective(700px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+    targetRx = 0;
+    targetRy = 0;
     if(shine) shine.style.opacity = '0';
+    if(!rafId) rafId = requestAnimationFrame(tick);
   });
 });
 
